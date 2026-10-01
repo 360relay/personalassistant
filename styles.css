@@ -169,7 +169,15 @@ select {
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 0.95rem;
-  transition: border 0.3s;
+  transition:
+    border 0.3s,
+    box-shadow 0.3s;
+  background-color: #fff;
+}
+
+input[type="email"],
+input[type="tel"] {
+  background-color: #fafafa;
 }
 
 input:focus,
@@ -177,6 +185,8 @@ textarea:focus,
 select:focus {
   border-color: var(--primary);
   outline: none;
+  box-shadow: 0 0 0 3px rgba(106, 90, 205, 0.1);
+  background-color: #fff;
 }
 
 textarea {
@@ -213,6 +223,11 @@ textarea {
 
 .btn:hover {
   background: #5a4abc;
+}
+
+.btn:disabled {
+  background: #999;
+  cursor: not-allowed;
 }
 
 .btn-block {

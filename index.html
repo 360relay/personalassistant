@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -84,8 +84,8 @@
           <div class="duty-item">
             <h3>Calendar & Scheduling</h3>
             <p>
-              Using Google Calendar, set up and confirm appointments, send
-              invites, and maintain buffer times between meetings.
+              Using Google/Microsoft Calendar, set up and confirm appointments,
+              send invites, and maintain buffer times between meetings.
             </p>
           </div>
 
@@ -135,17 +135,23 @@
               <input type="text" id="fullName" name="fullName" required />
             </div>
 
-            <div class="form-group">
-              <label for="email">Email Address *</label>
-              <input type="email" id="email" name="email" required />
-              <div class="form-note">
-                A Google account is required for this role
+            <div class="form-row">
+              <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="you@example.com"
+                  required
+                  autocomplete="email"
+                />
               </div>
-            </div>
 
-            <div class="form-group">
-              <label for="phone">Phone Number *</label>
-              <input type="tel" id="phone" name="phone" required />
+              <div class="form-group">
+                <label for="phone">Phone Number *</label>
+                <input type="tel" id="phone" name="phone" required />
+              </div>
             </div>
 
             <div class="form-group">
@@ -211,7 +217,7 @@
 
     <footer>
       <div class="container">
-        <p>© 2023 Art Supply Business. All rights reserved.</p>
+        <p>© 2026 Art Supply Business. All rights reserved.</p>
       </div>
     </footer>
 

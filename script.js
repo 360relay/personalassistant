@@ -12,57 +12,67 @@ document.addEventListener("DOMContentLoaded", function () {
     formMessage.style.borderRadius = "4px";
   }
 
-  // Email validation function
-  function isValidGmail(email) {
+  // Email validation function - accepts any valid email
+  function isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return false;
-    }
-
-    const domain = email.split("@")[1].toLowerCase();
-    const gmailDomains = ["gmail.com", "googlemail.com"];
-    return gmailDomains.includes(domain);
+    return emailRegex.test(email);
   }
 
   // Real-time email validation
-  document.getElementById("email").addEventListener("blur", function () {
-    const email = this.value.trim();
+  const emailField = document.getElementById("email");
+  if (emailField) {
+    emailField.addEventListener("blur", function () {
+      const email = this.value.trim();
 
-    if (email && !isValidGmail(email)) {
-      this.style.borderColor = "red";
-      let errorElement = this.parentNode.querySelector(".email-error");
-      if (!errorElement) {
-        errorElement = document.createElement("div");
-        errorElement.className = "email-error";
-        this.parentNode.appendChild(errorElement);
+      if (email && !isValidEmail(email)) {
+        this.style.borderColor = "red";
+        let errorElement = this.parentNode.querySelector(".email-error");
+        if (!errorElement) {
+          errorElement = document.createElement("div");
+          errorElement.className = "email-error";
+          this.parentNode.appendChild(errorElement);
+        }
+        errorElement.textContent = "Please enter a valid email address";
+      } else {
+        this.style.borderColor = "#ddd";
+        const errorElement = this.parentNode.querySelector(".email-error");
+        if (errorElement) {
+          errorElement.remove();
+        }
       }
-      errorElement.textContent = "Please use a Gmail account for this position";
-      errorElement.style.color = "red";
-      errorElement.style.fontSize = "0.8rem";
-      errorElement.style.marginTop = "5px";
-    } else {
-      this.style.borderColor = "#ddd";
-      const errorElement = this.parentNode.querySelector(".email-error");
-      if (errorElement) {
-        errorElement.remove();
+    });
+
+    emailField.addEventListener("input", function () {
+      if (isValidEmail(this.value.trim())) {
+        this.style.borderColor = "#ddd";
+        const errorElement = this.parentNode.querySelector(".email-error");
+        if (errorElement) {
+          errorElement.remove();
+        }
       }
-    }
-  });
+    });
+  }
 
   if (applicationForm) {
     applicationForm.addEventListener("submit", async function (event) {
       event.preventDefault();
 
       // Validate email first
-      const emailField = document.getElementById("email");
-      const email = emailField.value.trim();
+      const emailInput = document.getElementById("email");
+      const email = emailInput.value.trim();
 
-      if (!isValidGmail(email)) {
-        emailField.style.borderColor = "red";
-        showMessage(
-          "A Google account (Gmail) is required for this position. Please provide a Gmail address.",
-          "error"
-        );
+      if (!isValidEmail(email)) {
+        emailInput.style.borderColor = "red";
+        showMessage("Please enter a valid email address.", "error");
+
+        let errorElement = emailInput.parentNode.querySelector(".email-error");
+        if (!errorElement) {
+          errorElement = document.createElement("div");
+          errorElement.className = "email-error";
+          emailInput.parentNode.appendChild(errorElement);
+        }
+        errorElement.textContent = "Please enter a valid email address";
+        emailInput.focus();
         return;
       }
 
@@ -78,7 +88,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const formData = getFormData();
         console.log("Form data to submit:", formData);
 
-        // Send to Google Sheets using Google Forms method (more reliable)
         await submitToGoogleSheets(formData);
 
         showSuccessMessage();
@@ -159,24 +168,20 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   async function submitToGoogleSheets(formData) {
-    // REPLACE WITH YOUR ACTUAL GOOGLE APPS SCRIPT URL
     const GOOGLE_SCRIPT_URL =
       "https://script.google.com/macros/s/AKfycbzGCxVjqa9HdelP-WLd2BTux0nKlJD0KUL2CqYvF_4cDdTbHfx3otpMn0kB2my6bRiiCw/exec";
 
     return new Promise((resolve, reject) => {
-      // Create a hidden iframe to handle the response
       const iframe = document.createElement("iframe");
       iframe.name = "hidden_iframe_" + Date.now();
       iframe.style.display = "none";
 
-      // Create a form
       const form = document.createElement("form");
       form.method = "POST";
       form.action = GOOGLE_SCRIPT_URL;
       form.target = iframe.name;
       form.style.display = "none";
 
-      // Add all form data as hidden inputs
       Object.keys(formData).forEach((key) => {
         const input = document.createElement("input");
         input.type = "hidden";
@@ -185,20 +190,15 @@ document.addEventListener("DOMContentLoaded", function () {
         form.appendChild(input);
       });
 
-      // Add iframe and form to document
       document.body.appendChild(iframe);
       document.body.appendChild(form);
 
-      // Handle the response
       iframe.onload = function () {
-        // For Google Apps Script, we can't read the response due to CORS
-        // But if the iframe loads, the request was successful
         console.log("Form submitted successfully via iframe");
 
-        // Clean up
         setTimeout(() => {
-          document.body.removeChild(iframe);
-          document.body.removeChild(form);
+          if (document.body.contains(iframe)) document.body.removeChild(iframe);
+          if (document.body.contains(form)) document.body.removeChild(form);
         }, 1000);
 
         resolve({ result: "success" });
@@ -207,15 +207,12 @@ document.addEventListener("DOMContentLoaded", function () {
       iframe.onerror = function () {
         console.error("Iframe submission failed");
 
-        // Clean up
-        document.body.removeChild(iframe);
-        document.body.removeChild(form);
+        if (document.body.contains(iframe)) document.body.removeChild(iframe);
+        if (document.body.contains(form)) document.body.removeChild(form);
 
         reject(new Error("Form submission failed"));
       };
 
-      // Submit the form
-      console.log("Submitting form via iframe method");
       form.submit();
     });
   }
